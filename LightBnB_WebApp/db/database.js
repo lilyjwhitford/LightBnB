@@ -103,7 +103,7 @@ const getAllReservations = function (guest_id, limit = 10) {
     [guest_id, limit])
     .then((result) => {
       if (result.rows.length === 0) {
-        return "No reservations found for the given guest id.";
+        return [];
       }
       console.log(result.rows);
       return result.rows;
