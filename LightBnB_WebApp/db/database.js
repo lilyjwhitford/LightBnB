@@ -123,7 +123,6 @@ const getAllReservations = function (guest_id, limit = 10) {
  */
 const getAllProperties = function (options, limit = 10) {
   const queryParams = [];
-  const prefix = queryParams.length > 0 ? 'AND' : 'WHERE';
 
   let queryString = `
     SELECT properties.*, avg(property_reviews.rating) as average_rating
@@ -138,19 +137,22 @@ const getAllProperties = function (options, limit = 10) {
 
   if (options.owner_id) {
     queryParams.push(`${options.owner_id}`);
-    queryString += `${prefix} owner_id = $${queryParams.length}`;
+    queryString += queryParams.length === 1 ? " WHERE " : " AND ";
+    queryString += `owner_id = $${queryParams.length}`;
   }
 
   if (options.minimum_price_per_night && options.maximum_price_per_night) {
     const minPrice = options.minimum_price_per_night * 100;
     const maxPrice = options.maximum_price_per_night * 100;
     queryParams.push(minPrice, maxPrice);
-    queryString += `${prefix} cost_per_night BETWEEN $${queryParams.length - 1} AND $${queryParams.length}`;
+    queryString += queryParams.length === 1 ? " WHERE " : " AND ";
+    queryString += `cost_per_night BETWEEN $${queryParams.length - 1} AND $${queryParams.length}`;
   }
 
   if (options.minimum_rating) {
     queryParams.push(`${options.minimum_rating}`);
-    queryString += `${prefix} avg(property_reviews.rating) >= $${queryParams.length}`;
+    queryString += queryParams.length === 1 ? " WHERE " : " AND ";
+    queryString += `avg(property_reviews.rating) >= $${queryParams.length}`;
   }
 
   queryParams.push(limit);
