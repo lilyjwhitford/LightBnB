@@ -7,9 +7,6 @@ const pool = new Pool({
   database: "lightbnb"
 });
 
-const properties = require("./json/properties.json");
-const users = require("./json/users.json");
-
 /// Users
 
 /**
@@ -26,14 +23,14 @@ const getUserWithEmail = function(email) {
     [email])
     .then((result) => {
       if (result.rows.length) {
-      return result.rows[0];
+        return result.rows[0];
       } else {
         return null;
       }
     })
     .catch((err) => {
-      console.error(err.stack);
-    }); 
+      console.log(err.message);
+    });
 };
 
 /**
@@ -50,14 +47,14 @@ const getUserWithId = function(id) {
     [id])
     .then((result) => {
       if (result.rows.length) {
-      return result.rows[0];
+        return result.rows[0];
       } else {
         return null;
       }
     })
     .catch((err) => {
-      console.error(err.stack);
-    }); 
+      console.log(err.message);
+    });
 };
 
 /**
@@ -79,7 +76,7 @@ const addUser = function(user) {
       }
     })
     .catch((err) => {
-      console.error(err.stack);
+      console.log(err.message);
     });
 };
 
@@ -124,7 +121,7 @@ const getAllReservations = function(guest_id, limit = 10) {
  * @return {Promise<[{}]>}  A promise to the properties.
  */
 const getAllProperties = function(options, limit = 10) {
-  const queryParams = [];
+  const queryParams = []; // array
 
   let queryString = `
     SELECT properties.*, avg(property_reviews.rating) as average_rating
@@ -132,48 +129,52 @@ const getAllProperties = function(options, limit = 10) {
     JOIN property_reviews ON properties.id = property_id
   `;
 
+  // filter properties by city
   if (options.city) {
     queryParams.push(`%${options.city}%`);
     queryString += queryParams.length === 1 ? " WHERE " : " AND ";
     queryString += `city ILIKE $${queryParams.length}`;
-  };
+  }
 
+  // filter properties by owner_id (not required in search filter, but apparent in listings)
   if (options.owner_id) {
     queryParams.push(Number(options.owner_id));
     queryString += queryParams.length === 1 ? " WHERE " : " AND ";
     queryString += `owner_id = $${queryParams.length}`;
-  };
+  }
 
+  // filter properties by minimum and maximum price range
   if (options.minimum_price_per_night && options.maximum_price_per_night) {
     const minPrice = options.minimum_price_per_night * 100;
     const maxPrice = options.maximum_price_per_night * 100;
     queryParams.push(minPrice, maxPrice);
     queryString += queryParams.length === 2 ? " WHERE " : " AND ";
     queryString += `cost_per_night BETWEEN $${queryParams.length - 1} AND $${queryParams.length}`;
-  };
+  }
 
+  // add GROUP BY clause after WHERE clause
   queryString += `
     GROUP BY properties.id
   `;
 
+  // filter properties by minimum rating if provided
   if (options.minimum_rating) {
     queryParams.push(Number(options.minimum_rating));
     queryString += ` HAVING avg(property_reviews.rating) >= $${queryParams.length}`;
-  };
+  }
 
   queryParams.push(limit);
   queryString += `
   ORDER BY cost_per_night
   LIMIT $${queryParams.length}
-  ;
-  `;
+  ;`;
 
   return pool.query(queryString, queryParams)
     .then((result) => {
       return result.rows;
     })
     .catch((err) => {
-    console.error(err.stack);
+      console.log(err.message);
     });
 };
 
@@ -183,8 +184,8 @@ const getAllProperties = function(options, limit = 10) {
  * @return {Promise<{}>} A promise to the property.
  */
 const addProperty = function(property) {
-  const { owner_id, title, description, thumbnail_photo_url, cover_photo_url, cost_per_night, 
-    street, city, province, post_code, country, parking_spaces, 
+  const { owner_id, title, description, thumbnail_photo_url, cover_photo_url, cost_per_night,
+    street, city, province, post_code, country, parking_spaces,
     number_of_bathrooms, number_of_bedrooms } = property;
   return pool
     .query(`INSERT INTO properties (owner_id, title, description, thumbnail_photo_url, cover_photo_url, cost_per_night, 
@@ -192,14 +193,14 @@ const addProperty = function(property) {
     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
     RETURNING *;
     `,
-    [owner_id, title, description, thumbnail_photo_url, cover_photo_url, cost_per_night, 
-      street, city, province, post_code, country, parking_spaces, 
+    [owner_id, title, description, thumbnail_photo_url, cover_photo_url, cost_per_night,
+      street, city, province, post_code, country, parking_spaces,
       number_of_bathrooms, number_of_bedrooms])
     .then((result) => {
-        return result.rows[0];
+      return result.rows[0];
     })
     .catch((err) => {
-      console.error(err.stack);
+      console.log(err.message);
     });
 };
 
