@@ -7,7 +7,7 @@ This project aims to develop a database system and utilize server-side JavaScrip
 
 1. Clone LightBnB repository:
 ``` 
-git@github.com:lilyjwhitford/LightBnB.git 
+git clone git@github.com:lilyjwhitford/LightBnB.git 
 ```
 
 2. Navigate to directory:
