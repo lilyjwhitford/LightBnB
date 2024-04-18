@@ -5,14 +5,20 @@ This project aims to develop a database system and utilize server-side JavaScrip
 
 ## Getting Started:
 
-> 1. Clone LightBnB repository:
-``` git@github.com:lilyjwhitford/LightBnB.git ```
+1. Clone LightBnB repository:
+``` 
+git@github.com:lilyjwhitford/LightBnB.git 
+```
 
-> 2. Navigate to directory:
-``` cd LightBnB ```
+2. Navigate to directory:
+```
+cd LightBnB
+```
 
-> 3. Install all necessary dependencies:
-``` npm install ```
+3. Install all necessary dependencies:
+```
+npm install
+```
 
 # Dependencies:
 
@@ -26,4 +32,6 @@ This project aims to develop a database system and utilize server-side JavaScrip
 - nodemon
 
 # ERD (Entity-Relationship Diagram)
+
+![Screenshot of ERD](https://github.com/lilyjwhitford/LightBnB/blob/master/images/LightBnBERD.png)
 
